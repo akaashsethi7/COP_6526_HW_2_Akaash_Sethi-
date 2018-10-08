@@ -13,7 +13,7 @@ def count_lines_lambdaExpression():
   sc = SparkContext(conf=conf)
 
   # actuall lambda
-  lines = sc.textFile('../spark-1.4.1-bin-hadoop2.6/README.md')
+  lines = sc.textFile('/home/ec2-user/spark/README.md')
   lineLength = lines.map(lambda s: len(s))
   totalLength = lineLength.reduce(lambda a,b: a+b)
   return totalLength
