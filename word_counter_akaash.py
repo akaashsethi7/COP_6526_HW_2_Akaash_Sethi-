@@ -9,13 +9,14 @@ def count_lines_lambdaExpression():
   # configuration
   APP_NAME = 'count lines'
   conf = SparkConf().setAppName(APP_NAME)
-  conf = conf.setMaster('spark://ip-172-31-91-27.ec2.internal:7077')
+  conf = conf.setMaster('spark://ec2-18-206-64-64.compute-1.amazonaws.com:7077')
   sc = SparkContext(conf=conf)
 
   # actuall lambda
-  lines = sc.textFile('/home/ec2-user/spark/README.md')
+  lines = sc.textFile('/input/README.txt')
   lineLength = lines.map(lambda s: len(s))
   totalLength = lineLength.reduce(lambda a,b: a+b)
+  print ("The total length of the document is {}".format(totalLength))
   return totalLength
   pass
 
