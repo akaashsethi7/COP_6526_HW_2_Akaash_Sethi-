@@ -23,6 +23,7 @@ from __future__ import print_function
 import sys
 import re
 from operator import add
+from itertools import permutations
 
 from pyspark.sql import SparkSession
 
@@ -38,17 +39,18 @@ if __name__ == "__main__":
         .getOrCreate()
 
     lines = spark.read.text(sys.argv[1]).rdd.map(lambda r: r[0])
-#    counts = lines.flatMap(lambda x: x.split(' ')) \
-#                  .map(lambda x: (x, 1)) \
-#                  .reduceByKey(add)
-#    output = counts.collect()
-#    for (word, count) in output:
-#        print("%s: %i" % (word, count))
     counts = lines.map(lambda x:x.lower()) \
-                  .map(lambda x:re.sub(r"[,.;@#?!&$]+\ *","",x)) \
+                  .map(lambda x: x.encode('ascii')) \
+                  .map(lambda x:re.sub(r"[,.;'@#?!&$]+\ *",'',x)) \
+                  .map(lambda x:re.sub('[0-9]', '', x)) \
+                  .map(lambda x: x.split(' ')) \
+                  .map(lambda x: permutations(x,2)) \
+                  .flatMap(lambda x: x) \
                   .map(lambda x: (x, 1)) \
                   .reduceByKey(add)
+
     output = counts.collect()
+    counts.saveAsTextFile("/output/HW2_FINAL.txt")
     for (word, count) in output:
         print("%s: %i" % (word, count))
 
